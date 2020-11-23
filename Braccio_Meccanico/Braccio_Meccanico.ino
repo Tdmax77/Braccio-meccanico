@@ -1,5 +1,3 @@
-// www.ProgettiArduino.com
-// Pan tilt controllato da joystick
 
 #include <Servo.h>
 char tasto = 0;
@@ -7,18 +5,15 @@ int Servo_A_Pin = 11;
 int Servo_B_Pin = 10;
 int Servo_C_Pin = 9;
 int Servo_D_Pin = 5;
-int Pin_A = A0;
-int Pin_B = A1;
-int Pin_C = A2;
-int Pin_D = A3;
-int A_Min = 0;
-int A_Max = 180;
-int B_Min = 20;
-int B_Max = 60;
-int C_Min = 30;
-int C_Max = 90;
-int D_Min = 0;
-int D_Max = 90;
+int const Pin_A = A0; //  rotazione
+int const Pin_B = A3; //  braccio sx
+int const Pin_C = A2; //  braccio dx
+int const Pin_D = A1; //  pinza
+
+int Joy_A = 50; //rotazione
+int Joy_B = 50; //braccio
+int Joy_C = 50; //pinza
+int Joy_D = 50; // braccio
 
 Servo A;
 Servo B;
@@ -26,13 +21,13 @@ Servo C;
 Servo D;
 
 int A_PotValue;
-int A_Position = 97;   //30-204
+int A_Position;  //30-204
 int B_PotValue;
-int B_Position = 90;   //85 -100
+int B_Position;  //85 -100
 int C_PotValue;
-int C_Position = 65; //13 92
+int C_Position; //13 92
 int D_PotValue;
-int D_Position = 55; //66  
+int D_Position; //66
 
 void setup()
 {
@@ -41,11 +36,86 @@ void setup()
   B.attach(Servo_B_Pin);
   C.attach(Servo_C_Pin);
   D.attach(Servo_D_Pin);
+  A_Position = 97;
+  B_Position = 90;
+  C_Position = 65;
+  D_Position = 55;
+
 }
 
 void loop()
 {
+  tastiera();
+  A_Position = constrain (A_Position, 30, 204);
+  B_Position = constrain (B_Position, 85, 100);
+  C_Position = constrain (C_Position, 25, 105);// servo  di destra, comando di destra
+  D_Position = constrain (D_Position, 0, 100);
+  A_PotValue  = analogRead(Pin_A);
+  B_PotValue  = analogRead(Pin_B);
+  C_PotValue  = analogRead(Pin_C);
+  D_PotValue  = analogRead(Pin_D);
+  Joy_A = map(A_PotValue, 0, 1023, 0 , 100);
+  Joy_B = map(B_PotValue, 0, 1023, 0 , 100);
+  Joy_C = map(C_PotValue, 0, 1023, 0 , 100);
+  Joy_D = map(D_PotValue, 0, 1023, 0 , 100);
 
+
+  if (Joy_A < 25) {
+    A_Position = A_Position + 2;
+  }
+  else if ((Joy_A >= 25) && (Joy_A < 45)) {
+    A_Position = A_Position + 1;
+  }
+  else if ((Joy_A > 55) && (Joy_A < 75))  {
+    A_Position = A_Position - 1;
+  }
+  else if (Joy_A >= 75) {
+    A_Position = A_Position - 2;
+  }
+  if ((Joy_B < 1) && (Joy_C > 45) && (Joy_C < 55)) {
+    B_Position = B_Position - 2;
+  }
+    else if ((Joy_B >= 100) && (Joy_C > 45) && (Joy_C < 55))  {
+    B_Position = B_Position + 2;
+  }
+  if (Joy_C < 25) {
+    C_Position = C_Position - 2;
+  }
+  else if ((Joy_C >= 25) && (Joy_C < 45)) {
+    C_Position = C_Position - 1;
+  }
+  else if ((Joy_C > 55) && (Joy_C < 75))   {
+    C_Position = C_Position + 1;
+  }
+  else if (Joy_C >= 75) {
+    C_Position = C_Position + 2;
+  }
+  if (Joy_D < 25) {
+    D_Position = D_Position - 2;
+  }
+  else if ((Joy_D >= 25) && (Joy_D < 45)) {
+    D_Position = D_Position - 1;
+  }
+  else if ((Joy_D > 55) && (Joy_D < 75))   {
+    D_Position = D_Position + 1;
+  }
+  else if (Joy_D >= 75) {
+    D_Position = D_Position + 2;
+  }
+
+  A.write(A_Position);
+  B.write(B_Position);
+  C.write(C_Position);
+  D.write(D_Position);
+
+  delay(50);
+}
+
+
+
+
+
+void tastiera() {
   tasto = Serial.read();
   switch (tasto) {
     case 'a':
@@ -79,31 +149,5 @@ void loop()
     case ',':
       D_Position = D_Position - 5;
       break;
-
-
   }
-  A_PotValue  = analogRead(Pin_A);
-  B_PotValue  = analogRead(Pin_B);
-  C_PotValue  = analogRead(Pin_C);
-  D_PotValue  = analogRead(Pin_D);
-  // A_Position  = map(A_PotValue, 0, 1023, A_Min , A_Max);
-  //B_Position  = map(B_PotValue, 0, 1023, B_Max , B_Min );
-  // C_Position  = map(C_PotValue, 0, 1023, C_Max , C_Min );
-  // D_Position  = map(D_PotValue, 0, 1023, D_Min , D_Max);
-  A.write(A_Position);
-  Serial.print("valore di A  ");
-  Serial.println(A_Position);
-  
-  B.write(B_Position);
-  Serial.print("valore di B  ");
-  Serial.println(B_Position);
-  
-  C.write(C_Position);
-  Serial.print("valore di C  ");
-  Serial.println(C_Position);
- 
-  D.write(D_Position);
-  Serial.print("valore di D  ");
-  Serial.println(D_Position);
-  delay(20);
 }
