@@ -1,3 +1,9 @@
+/* Questo programma serve a pilotare un braccetto meccanico con 4 servomotori:
+ *  ho implementato dei limiti di corsa per i vari movimenti ed in più ho messo una condizione 
+ *  per la quale l'apertura della pinza funziona solo all'estremo del joystick e l'apertura della stessa 
+ *  è bloccata se il braccio si sta muovendo 
+ *  
+ */
 
 #include <Servo.h>
 char tasto = 0;
@@ -25,9 +31,9 @@ int A_Position;  //30-204
 int B_PotValue;
 int B_Position;  //85 -100
 int C_PotValue;
-int C_Position; //13 92
+int C_Position; //25 105
 int D_PotValue;
-int D_Position; //66
+int D_Position; //0 100
 
 void setup()
 {
@@ -60,24 +66,31 @@ void loop()
   Joy_D = map(D_PotValue, 0, 1023, 0 , 100);
 
 
-  if (Joy_A < 25) {
+  if (Joy_A < 25) {                           //estremo muove +2
     A_Position = A_Position + 2;
   }
-  else if ((Joy_A >= 25) && (Joy_A < 45)) {
+  else if ((Joy_A >= 25) && (Joy_A < 45)) {   //mezza corsa  muove +1
     A_Position = A_Position + 1;
   }
-  else if ((Joy_A > 55) && (Joy_A < 75))  {
+  else if ((Joy_A > 55) && (Joy_A < 75))  {   //mezza corsa  muove +1
     A_Position = A_Position - 1;
   }
-  else if (Joy_A >= 75) {
+  else if (Joy_A >= 75) {                     //estremo muove +2
     A_Position = A_Position - 2;
   }
+
+//Impostazioni PINZA ******************
+  
   if ((Joy_B < 1) && (Joy_C > 45) && (Joy_C < 55)) {
     B_Position = B_Position - 2;
   }
     else if ((Joy_B >= 100) && (Joy_C > 45) && (Joy_C < 55))  {
     B_Position = B_Position + 2;
   }
+//Impostazioni PINZA ******************
+
+
+  
   if (Joy_C < 25) {
     C_Position = C_Position - 2;
   }
@@ -90,6 +103,9 @@ void loop()
   else if (Joy_C >= 75) {
     C_Position = C_Position + 2;
   }
+
+
+  
   if (Joy_D < 25) {
     D_Position = D_Position - 2;
   }
@@ -103,9 +119,9 @@ void loop()
     D_Position = D_Position + 2;
   }
 
-  A.write(A_Position);
+  A.write(A_Position);  //Rotazione
   B.write(B_Position);
-  C.write(C_Position);
+  C.write(C_Position);  //Pinza
   D.write(D_Position);
 
   delay(50);
